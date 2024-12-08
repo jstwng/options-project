@@ -4,14 +4,14 @@ import NewVariable from "./newVariable";
 import { useState } from "react";
 
 function App() {
-  type VariableSymbol = "S" | "T" | "t" | "K" | "r" | "sigma";
+  type VariableSymbol = "S" | "T" | "t" | "K" | "r" | "σ";
   const [variables, setVariables] = useState({
     S: 50, // Asset price
     T: 50, // Time to expiry
     t: 0, // Current time
     K: 50, // Strike price
     r: 0.05, // Risk-free rate
-    sigma: 0.2, // Volatility
+    σ: 0.2, // Volatility
   });
 
   function erf(x: number) {
@@ -40,18 +40,18 @@ function App() {
   };
 
   const calculateDPlus = () => {
-    const { S, K, r, sigma, T, t } = variables;
+    const { S, K, r, σ, T, t } = variables;
     const timeToMaturity = T - t;
     return (
-      (1 / (sigma * Math.sqrt(timeToMaturity))) *
-      (Math.log(S / K) + (r + sigma ** 2 / 2) * timeToMaturity)
+      (1 / (σ * Math.sqrt(timeToMaturity))) *
+      (Math.log(S / K) + (r + σ ** 2 / 2) * timeToMaturity)
     );
   };
 
   const calculateDMinus = (dPlus: number) => {
-    const { sigma, T, t } = variables;
+    const { σ, T, t } = variables;
     const timeToMaturity = T - t;
-    return dPlus - sigma * Math.sqrt(timeToMaturity);
+    return dPlus - σ * Math.sqrt(timeToMaturity);
   };
 
   // Cumulative normal distribution function
@@ -80,7 +80,7 @@ function App() {
 
   return (
     <>
-      <h1>Black-Scholes Formula</h1>
+      <h1>European-style options pricing with Black-Scholes</h1>
       <div style={{ display: "inline" }}>
         <Latex>{blackScholes}</Latex>
       </div>
@@ -120,7 +120,7 @@ function App() {
         label="Current time in years"
         symbol="t"
         min={0}
-        max={100}
+        max={variables.T}
         defaultValue={0}
         step={0.01}
         onChange={(newValue) => handleChange("t", newValue)}
@@ -145,12 +145,12 @@ function App() {
       />
       <NewVariable
         label="Underlying volatility"
-        symbol="sigma"
+        symbol="σ"
         min={0}
         max={2}
         defaultValue={0.2}
         step={0.02}
-        onChange={(newValue) => handleChange("sigma", newValue)}
+        onChange={(newValue) => handleChange("σ", newValue)}
       />
     </>
   );
