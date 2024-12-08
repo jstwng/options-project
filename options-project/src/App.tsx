@@ -80,7 +80,10 @@ function App() {
 
   return (
     <>
-      <h1>European-style options pricing with Black-Scholes</h1>
+      <h1>
+        Implied volatility surface for a European-style option, priced with
+        Black-Scholes
+      </h1>
       <div style={{ display: "inline" }}>
         <Latex>{blackScholes}</Latex>
       </div>
