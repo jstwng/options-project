@@ -200,7 +200,7 @@ function App() {
             symbol="S"
             min={0}
             max={100}
-            defaultValue={12.27}
+            defaultValue={8.04}
             step={0.01}
             onChange={(newValue) => handleChange("S", newValue)}
           />
@@ -209,7 +209,7 @@ function App() {
             symbol="T"
             min={0}
             max={100}
-            defaultValue={14.86}
+            defaultValue={12.16}
             step={0.01}
             onChange={(newValue) => handleChange("T", newValue)}
           />
@@ -218,7 +218,7 @@ function App() {
             symbol="t"
             min={0}
             max={variables.T}
-            defaultValue={2.08}
+            defaultValue={4.08}
             step={0.01}
             onChange={(newValue) => handleChange("t", newValue)}
           />
@@ -269,18 +269,25 @@ function App() {
               x: generateData()[0],
               y: generateData()[1],
               z: generateData()[2],
+              colorbar: {
+                len: 0.6, // Adjust the height of the color bar (relative to the plot height)
+                thickness: 20, // Adjust the width of the color bar
+              },
             },
           ]}
           layout={{
-            width: 800,
+            width: 600,
             height: 800,
             title: {
-              text: "Theoretical European-style call option price evolution with Black-Scholes and Merton",
+              text: "Theoretical European-style call option price evolution with BSM",
             },
             scene: {
               xaxis: { title: { text: "Expiry time" } },
               yaxis: { title: { text: "Asset price" } },
               zaxis: { title: { text: "Call option price" } },
+              camera: {
+                eye: { x: 1.9, y: -1.9, z: 1.7 },
+              },
             },
           }}
         />
