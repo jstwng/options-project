@@ -156,9 +156,6 @@ function App() {
     );
   };
 
-  var f = function () {
-    return (1.0 + erf(calculateDPlus() / Math.sqrt(2.0))) / 2.0;
-  };
   const optionPrice = calculateOptionPrice();
   const delta = normalCDF(calculateDPlus());
   const gamma = calculateGamma();
