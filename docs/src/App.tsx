@@ -176,6 +176,7 @@ function App() {
       <h1>
         European-style call option, priced with Black-Scholes and Merton (BSM)
       </h1>
+      <h3 style={{ display: "inline" }}>Theoretical call option price </h3>
       <div style={{ display: "inline" }}>
         <Latex>{blackScholes}</Latex>
       </div>
@@ -207,9 +208,9 @@ function App() {
           <NewVariable
             label="Time-to-expiry"
             symbol="T"
-            min={0}
+            min={variables.t + 0.01}
             max={100}
-            defaultValue={0.16}
+            defaultValue={50}
             step={0.01}
             onChange={(newValue) => handleChange("T", newValue)}
           />
@@ -217,8 +218,8 @@ function App() {
             label="Current time in years"
             symbol="t"
             min={0}
-            max={variables.T}
-            defaultValue={4.08}
+            max={variables.T - 0.01}
+            defaultValue={45}
             step={0.01}
             onChange={(newValue) => handleChange("t", newValue)}
           />
@@ -286,7 +287,7 @@ function App() {
               yaxis: { title: { text: "Asset price" } },
               zaxis: { title: { text: "Call option price" } },
               camera: {
-                eye: { x: 1.9, y: -1.9, z: 1.7 },
+                eye: { x: 2.1, y: -2.1, z: 1.7 },
               },
             },
           }}
