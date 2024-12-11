@@ -9,7 +9,7 @@ function App() {
   const [variables, setVariables] = useState({
     S: 50, // Asset price
     T: 50, // Time to expiry
-    t: 0, // Current time
+    t: 45, // Current time
     K: 50, // Strike price
     r: 0.05, // Risk-free rate
     σ: 0.2, // Volatility
@@ -209,7 +209,7 @@ function App() {
             symbol="T"
             min={0}
             max={100}
-            defaultValue={12.16}
+            defaultValue={0.16}
             step={0.01}
             onChange={(newValue) => handleChange("T", newValue)}
           />
