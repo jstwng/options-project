@@ -35,7 +35,7 @@ export default class NewVariable extends React.Component<
     const { label, symbol, min, max, step } = this.props;
     const { value } = this.state;
     return (
-      <div style={{ width: "500px", height: "23px", marginBottom: "2px" }}>
+      <div style={{ height: "23px", marginBottom: "2px" }}>
         <div style={{ float: "left" }}>
           <h3 style={{ display: "inline", marginRight: "5px" }}>
             {label}, <em>{symbol}</em> =

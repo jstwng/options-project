@@ -35,6 +35,11 @@ function App() {
     return sign * y;
   }
 
+  function differentiate(f: Function, x: number) {
+    let dx = 0.0000001;
+    return (f(x + dx) - f(x)) / dx;
+  }
+
   const handleChange = (symbol: VariableSymbol, value: number) => {
     setVariables((prev) => ({ ...prev, [symbol]: value }));
   };
@@ -71,7 +76,20 @@ function App() {
     );
   };
 
+  const calculateGamma = () => {
+    const { S, σ, T, t } = variables;
+    const dPlus = calculateDPlus();
+    const timeToMaturity = T - t;
+
+    return normalCDF(dPlus) / (S * σ * Math.sqrt(timeToMaturity));
+  };
+
+  var f = function () {
+    return (1.0 + erf(calculateDPlus() / Math.sqrt(2.0))) / 2.0;
+  };
   const optionPrice = calculateOptionPrice();
+  const delta = normalCDF(calculateDPlus());
+  const gamma = calculateGamma();
 
   var blackScholes = "$$C(S_t, t)=N(d_{+})S_t-N(d\\_)Ke^{-r(T-t)}$$";
   var dPlus =
@@ -81,8 +99,7 @@ function App() {
   return (
     <>
       <h1>
-        Implied volatility surface for a European-style option, priced with
-        Black-Scholes
+        European-style call option, priced with Black-Scholes and Merton (BSM)
       </h1>
       <div style={{ display: "inline" }}>
         <Latex>{blackScholes}</Latex>
@@ -100,61 +117,72 @@ function App() {
         <Latex>{dMinus}</Latex>
       </div>
       <br></br>
-      <div style={{ marginBottom: "20px" }}></div>
-      <NewVariable
-        label="Varying Asset Price"
-        symbol="S"
-        min={0}
-        max={100}
-        defaultValue={50}
-        step={0.01}
-        onChange={(newValue) => handleChange("S", newValue)}
-      />
-      <NewVariable
-        label="Time-to-expiry"
-        symbol="T"
-        min={0}
-        max={100}
-        defaultValue={50}
-        step={0.01}
-        onChange={(newValue) => handleChange("T", newValue)}
-      />
-      <NewVariable
-        label="Current time in years"
-        symbol="t"
-        min={0}
-        max={variables.T}
-        defaultValue={0}
-        step={0.01}
-        onChange={(newValue) => handleChange("t", newValue)}
-      />
-      <NewVariable
-        label="Strike price"
-        symbol="K"
-        min={0}
-        max={100}
-        step={0.01}
-        defaultValue={50}
-        onChange={(newValue) => handleChange("K", newValue)}
-      />
-      <NewVariable
-        label="Risk-free interest rate"
-        symbol="r"
-        min={0}
-        max={0.2}
-        step={0.002}
-        defaultValue={0.05}
-        onChange={(newValue) => handleChange("r", newValue)}
-      />
-      <NewVariable
-        label="Underlying volatility"
-        symbol="σ"
-        min={0}
-        max={2}
-        defaultValue={0.2}
-        step={0.02}
-        onChange={(newValue) => handleChange("σ", newValue)}
-      />
+      <div style={{ marginBottom: "10px" }}></div>
+      <div>
+        <div className="sliderdiv">
+          <NewVariable
+            label="Varying Asset Price"
+            symbol="S"
+            min={0}
+            max={100}
+            defaultValue={50}
+            step={0.01}
+            onChange={(newValue) => handleChange("S", newValue)}
+          />
+          <NewVariable
+            label="Time-to-expiry"
+            symbol="T"
+            min={0}
+            max={100}
+            defaultValue={50}
+            step={0.01}
+            onChange={(newValue) => handleChange("T", newValue)}
+          />
+          <NewVariable
+            label="Current time in years"
+            symbol="t"
+            min={0}
+            max={variables.T}
+            defaultValue={0}
+            step={0.01}
+            onChange={(newValue) => handleChange("t", newValue)}
+          />
+          <NewVariable
+            label="Strike price"
+            symbol="K"
+            min={0}
+            max={100}
+            step={0.01}
+            defaultValue={50}
+            onChange={(newValue) => handleChange("K", newValue)}
+          />
+          <NewVariable
+            label="Risk-free interest rate"
+            symbol="r"
+            min={0}
+            max={0.2}
+            step={0.002}
+            defaultValue={0.05}
+            onChange={(newValue) => handleChange("r", newValue)}
+          />
+          <NewVariable
+            label="Underlying volatility"
+            symbol="σ"
+            min={0}
+            max={2}
+            defaultValue={0.2}
+            step={0.02}
+            onChange={(newValue) => handleChange("σ", newValue)}
+          />
+        </div>
+        <div className="greeks">
+          <h3>
+            <b>The Greeks</b>
+          </h3>
+          <h3>Delta (Δ): {delta.toFixed(3)}</h3>
+          <h3>Gamma (Γ): {gamma.toFixed(3)}</h3>
+        </div>
+      </div>
     </>
   );
 }
