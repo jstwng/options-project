@@ -35,11 +35,6 @@ function App() {
     return sign * y;
   }
 
-  function differentiate(f: Function, x: number) {
-    let dx = 0.0000001;
-    return (f(x + dx) - f(x)) / dx;
-  }
-
   const handleChange = (symbol: VariableSymbol, value: number) => {
     setVariables((prev) => ({ ...prev, [symbol]: value }));
   };
@@ -59,9 +54,14 @@ function App() {
     return dPlus - σ * Math.sqrt(timeToMaturity);
   };
 
-  // Cumulative normal distribution function
+  // Cumulative normal distribution function, N()
   const normalCDF = (x: number) => {
     return (1.0 + erf(x / Math.sqrt(2.0))) / 2.0;
+  };
+
+  // N'()
+  const normalPDF = (x: number) => {
+    return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
   };
 
   const calculateOptionPrice = () => {
@@ -81,7 +81,37 @@ function App() {
     const dPlus = calculateDPlus();
     const timeToMaturity = T - t;
 
-    return normalCDF(dPlus) / (S * σ * Math.sqrt(timeToMaturity));
+    return normalPDF(dPlus) / (S * σ * Math.sqrt(timeToMaturity));
+  };
+
+  const calculateVega = () => {
+    const { S, T, t } = variables;
+    const dPlus = calculateDPlus();
+    const timeToMaturity = T - t;
+
+    return S * normalPDF(dPlus) * Math.sqrt(timeToMaturity);
+  };
+
+  const calculateTheta = () => {
+    const { S, σ, T, t, r, K } = variables;
+    const dPlus = calculateDPlus();
+    const dMinus = calculateDMinus(dPlus);
+    const timeToMaturity = T - t;
+
+    return (
+      -(S * normalPDF(dPlus) * σ) / (2 * Math.sqrt(timeToMaturity)) -
+      r * K * (Math.E ^ (-r * timeToMaturity)) * normalCDF(dMinus)
+    );
+  };
+
+  const calculateRho = () => {
+    const { K, T, t, r } = variables;
+    const dMinus = calculateDMinus(calculateDPlus());
+    const timeToMaturity = T - t;
+
+    return (
+      K * timeToMaturity * (Math.E ^ (-r * timeToMaturity)) * normalCDF(dMinus)
+    );
   };
 
   var f = function () {
@@ -90,6 +120,9 @@ function App() {
   const optionPrice = calculateOptionPrice();
   const delta = normalCDF(calculateDPlus());
   const gamma = calculateGamma();
+  const vega = calculateVega();
+  const theta = calculateTheta();
+  const rho = calculateRho();
 
   var blackScholes = "$$C(S_t, t)=N(d_{+})S_t-N(d\\_)Ke^{-r(T-t)}$$";
   var dPlus =
@@ -181,6 +214,9 @@ function App() {
           </h3>
           <h3>Delta (Δ): {delta.toFixed(3)}</h3>
           <h3>Gamma (Γ): {gamma.toFixed(3)}</h3>
+          <h3>Vega (ν): {vega.toFixed(3)}</h3>
+          <h3>Theta (θ): {theta.toFixed(3)}</h3>
+          <h3>Rho (ρ): {rho.toFixed(3)}</h3>
         </div>
       </div>
     </>
