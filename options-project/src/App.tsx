@@ -24,11 +24,9 @@ function App() {
     const a5 = 1.061405429;
     const p = 0.3275911;
 
-    // Save the sign of x
     const sign = x >= 0 ? 1 : -1;
     x = Math.abs(x);
 
-    // Approximation formula
     const t = 1 / (1 + p * x);
     const y =
       1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
@@ -106,30 +104,36 @@ function App() {
   };
 
   const generateData = () => {
-    const { S, K, T, t, r } = variables;
-    const timeToMaturity = T - t;
+    const { K, σ, r } = variables;
+    const gridSize = 20;
 
-    let xCoordinates = []; // Time values
-    let yCoordinates = []; // Asset price values
-    let zCoordinates = []; // Surface heights (e.g., option price)
+    let xCoordinates = [];
+    let yCoordinates = [];
+    let zCoordinates = [];
     let allData = [];
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < gridSize; i++) {
       let xRow = [];
       let yRow = [];
       let zRow = [];
-      for (let j = 0; j < 20; j++) {
-        let workingS = 0.5 * S + 0.05 * j * S;
-        let workingTime = 0.5 * timeToMaturity + 0.05 * i * timeToMaturity;
+      for (let j = 0; j < gridSize; j++) {
+        const workingS = 0.5 * variables.S + 0.05 * j * variables.S;
+        const workingTime =
+          0.5 * (variables.T - variables.t) +
+          0.05 * i * (variables.T - variables.t);
+
+        const dPlus =
+          (1 / (σ * Math.sqrt(workingTime))) *
+          (Math.log(workingS / K) + (r + σ ** 2 / 2) * workingTime);
+        const dMinus = dPlus - σ * Math.sqrt(workingTime);
+
+        const optionPrice =
+          normalCDF(dPlus) * workingS -
+          normalCDF(dMinus) * K * Math.exp(-r * workingTime);
 
         xRow.push(workingTime);
         yRow.push(workingS);
-        zRow.push(
-          normalCDF(calculateDPlus()) * workingS -
-            normalCDF(calculateDMinus(calculateDPlus())) *
-              K *
-              Math.exp(-r * workingTime)
-        );
+        zRow.push(optionPrice);
       }
       xCoordinates.push(xRow);
       yCoordinates.push(yRow);
@@ -138,6 +142,7 @@ function App() {
     allData.push(xCoordinates);
     allData.push(yCoordinates);
     allData.push(zCoordinates);
+
     return allData;
   };
 
@@ -195,7 +200,7 @@ function App() {
             symbol="S"
             min={0}
             max={100}
-            defaultValue={50}
+            defaultValue={12.27}
             step={0.01}
             onChange={(newValue) => handleChange("S", newValue)}
           />
@@ -204,7 +209,7 @@ function App() {
             symbol="T"
             min={0}
             max={100}
-            defaultValue={50}
+            defaultValue={14.86}
             step={0.01}
             onChange={(newValue) => handleChange("T", newValue)}
           />
@@ -213,7 +218,7 @@ function App() {
             symbol="t"
             min={0}
             max={variables.T}
-            defaultValue={0}
+            defaultValue={2.08}
             step={0.01}
             onChange={(newValue) => handleChange("t", newValue)}
           />
@@ -223,7 +228,7 @@ function App() {
             min={0}
             max={100}
             step={0.01}
-            defaultValue={50}
+            defaultValue={31.74}
             onChange={(newValue) => handleChange("K", newValue)}
           />
           <NewVariable
@@ -268,9 +273,14 @@ function App() {
           ]}
           layout={{
             width: 800,
-            height: 700,
+            height: 800,
             title: {
               text: "Theoretical European-style call option price evolution with Black-Scholes and Merton",
+            },
+            scene: {
+              xaxis: { title: { text: "Expiry time" } },
+              yaxis: { title: { text: "Asset price" } },
+              zaxis: { title: { text: "Call option price" } },
             },
           }}
         />
