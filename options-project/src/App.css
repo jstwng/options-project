@@ -28,3 +28,8 @@ h3 {
   width: 400px;
   float: left;
 }
+
+.plot {
+  width: 800px;
+  height: 600px;
+}

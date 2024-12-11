@@ -2,6 +2,7 @@ import "./App.css";
 import Latex from "react-latex";
 import NewVariable from "./newVariable";
 import { useState } from "react";
+import Plot from "react-plotly.js";
 
 function App() {
   type VariableSymbol = "S" | "T" | "t" | "K" | "r" | "σ";
@@ -102,6 +103,42 @@ function App() {
       -(S * normalPDF(dPlus) * σ) / (2 * Math.sqrt(timeToMaturity)) -
       r * K * (Math.E ^ (-r * timeToMaturity)) * normalCDF(dMinus)
     );
+  };
+
+  const generateData = () => {
+    const { S, K, T, t, r } = variables;
+    const timeToMaturity = T - t;
+
+    let xCoordinates = []; // Time values
+    let yCoordinates = []; // Asset price values
+    let zCoordinates = []; // Surface heights (e.g., option price)
+    let allData = [];
+
+    for (let i = 0; i < 20; i++) {
+      let xRow = [];
+      let yRow = [];
+      let zRow = [];
+      for (let j = 0; j < 20; j++) {
+        let workingS = 0.5 * S + 0.05 * j * S;
+        let workingTime = 0.5 * timeToMaturity + 0.05 * i * timeToMaturity;
+
+        xRow.push(workingTime);
+        yRow.push(workingS);
+        zRow.push(
+          normalCDF(calculateDPlus()) * workingS -
+            normalCDF(calculateDMinus(calculateDPlus())) *
+              K *
+              Math.exp(-r * workingTime)
+        );
+      }
+      xCoordinates.push(xRow);
+      yCoordinates.push(yRow);
+      zCoordinates.push(zRow);
+    }
+    allData.push(xCoordinates);
+    allData.push(yCoordinates);
+    allData.push(zCoordinates);
+    return allData;
   };
 
   const calculateRho = () => {
@@ -218,6 +255,25 @@ function App() {
           <h3>Theta (θ): {theta.toFixed(3)}</h3>
           <h3>Rho (ρ): {rho.toFixed(3)}</h3>
         </div>
+      </div>
+      <div className="plot">
+        <Plot
+          data={[
+            {
+              type: "surface",
+              x: generateData()[0],
+              y: generateData()[1],
+              z: generateData()[2],
+            },
+          ]}
+          layout={{
+            width: 800,
+            height: 700,
+            title: {
+              text: "Theoretical European-style call option price evolution with Black-Scholes and Merton",
+            },
+          }}
+        />
       </div>
     </>
   );
